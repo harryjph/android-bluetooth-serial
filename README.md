@@ -3,6 +3,8 @@ A library for Android to simplify basic serial communication over Bluetooth, for
 
 ## How to include the library
 
+[![JitPack](https://jitpack.io/v/harry1453/android-bluetooth-serial.svg)](https://jitpack.io/#harry1453/android-bluetooth-serial)
+
 **Gradle**
 
 - **Project level `build.gradle`**
