@@ -100,6 +100,18 @@ public class BluetoothManager implements Closeable {
         closeDevice(device.getMac());
     }
 
+    /**
+     * Closes the connection to a device. After calling,
+     * you should probably set your instance to null
+     * to avoid trying to read/write from it.
+     *
+     * @param deviceInterface The interface accessing the device
+     *                        you are trying to close the connection to
+     */
+    public void closeDevice(SimpleDeviceInterface deviceInterface) {
+        closeDevice(deviceInterface.getDevice().getMac());
+    }
+
 
     /**
      * Close all connected devices

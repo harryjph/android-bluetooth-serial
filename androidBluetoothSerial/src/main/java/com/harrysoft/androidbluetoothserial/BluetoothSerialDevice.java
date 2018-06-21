@@ -1,6 +1,7 @@
 package com.harrysoft.androidbluetoothserial;
 
 import android.bluetooth.BluetoothSocket;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.io.BufferedReader;
@@ -15,12 +16,15 @@ import io.reactivex.Flowable;
 
 public class BluetoothSerialDevice {
 
-    private boolean connected = true;
+    private boolean closed = false;
 
     private final String mac;
     private final BluetoothSocket socket;
     private final OutputStream outputStream;
     private final InputStream inputStream;
+
+    @Nullable
+    private SimpleDeviceInterface owner;
 
     private BluetoothSerialDevice(String mac, BluetoothSocket socket, OutputStream outputStream, InputStream inputStream) {
         this.mac = mac;
@@ -39,7 +43,8 @@ public class BluetoothSerialDevice {
      *          send the message.
      */
     public Completable send(String message) {
-        return Completable.fromAction(() -> {if (connected) outputStream.write(message.getBytes());});
+        requireNotClosed();
+        return Completable.fromAction(() -> { if (!closed) outputStream.write(message.getBytes()); });
     }
 
     /**
@@ -47,19 +52,22 @@ public class BluetoothSerialDevice {
      *          provide a stream of messages from the device.
      */
     public Flowable<String> openMessageStream() {
+        requireNotClosed();
         return Flowable.create(emitter -> {
             BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-            while (!emitter.isCancelled() && connected) {
-                try {
-                    String receivedString = in.readLine();
-                    if (!TextUtils.isEmpty(receivedString)) {
-                        emitter.onNext(receivedString);
-                    }
-                } catch (Exception e) {
-                    if (!emitter.isCancelled() && connected) {
-                        emitter.onError(e);
-                    } else {
-                        break;
+            while (!emitter.isCancelled() && !closed) {
+                synchronized (this) {
+                    try {
+                        String receivedString = in.readLine();
+                        if (!TextUtils.isEmpty(receivedString)) {
+                            emitter.onNext(receivedString);
+                        }
+                    } catch (Exception e) {
+                        if (!emitter.isCancelled() && !closed) {
+                            emitter.onError(e);
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
@@ -72,16 +80,45 @@ public class BluetoothSerialDevice {
      *          throws an exception whilst closing
      */
     void close() throws IOException {
-        if (connected) {
-            connected = false;
+        if (!closed) {
+            closed = true;
             inputStream.close();
             outputStream.close();
             socket.close();
         }
+        if (owner != null) {
+            owner.close();
+            owner = null;
+        }
     }
 
     /**
-     * @return The MAC address of the connected bluetooth device
+     * Wrap using a SimpleDeviceInterface.
+     * This makes things a lot simpler within the class accessing this device
+     *
+     * @return a SimpleDeviceInterface that will access this device object
+     */
+    public SimpleDeviceInterface toSimpleDeviceInterface() {
+        requireNotClosed();
+        if (owner != null) {
+            return owner;
+        } else {
+            return owner = new SimpleDeviceInterface(this);
+        }
+    }
+
+    /**
+     * Internal function that checks that
+     * this instance has not been closed
+     */
+    void requireNotClosed() {
+        if (closed) {
+            throw new IllegalArgumentException("Device connection closed");
+        }
+    }
+
+    /**
+     * @return The MAC address of the closed bluetooth device
      */
     public String getMac() {
         return mac;

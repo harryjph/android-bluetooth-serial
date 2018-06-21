@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
-import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
+import com.harrysoft.androidbluetoothserial.SimpleDeviceInterface;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -27,7 +27,7 @@ public class CommunicateViewModel extends AndroidViewModel {
 
     // Our Bluetooth Device! When disconnected it is null, so make sure we know that we need to deal with it potentially being null
     @Nullable
-    private BluetoothSerialDevice serialDevice;
+    private SimpleDeviceInterface deviceInterface;
 
     // The messages feed that the activity sees
     private MutableLiveData<String> messagesData = new MutableLiveData<>();
@@ -89,15 +89,14 @@ public class CommunicateViewModel extends AndroidViewModel {
         // Check we are not already connecting or connected
         if (!connectionAttemptedOrMade) {
             // Connect asynchronously
-            compositeDisposable.add(
-                    bluetoothManager.openSerialDevice(mac)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(this::onConnected, t -> {
-                                toast(R.string.connection_failed);
-                                connectionAttemptedOrMade = false;
-                                connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
-                            }));
+            compositeDisposable.add(bluetoothManager.openSerialDevice(mac)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(device -> onConnected(device.toSimpleDeviceInterface()), t -> {
+                        toast(R.string.connection_failed);
+                        connectionAttemptedOrMade = false;
+                        connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
+                    }));
             // Remember that we made a connection attempt.
             connectionAttemptedOrMade = true;
             // Tell the activity that we are connecting.
@@ -108,36 +107,32 @@ public class CommunicateViewModel extends AndroidViewModel {
     // Called when the user presses the disconnect button
     public void disconnect() {
         // Check we were connected
-        if (connectionAttemptedOrMade) {
+        if (connectionAttemptedOrMade && deviceInterface != null) {
             connectionAttemptedOrMade = false;
             // Use the library to close the connection
-            bluetoothManager.closeDevice(serialDevice);
+            bluetoothManager.closeDevice(deviceInterface);
             // Set it to null so no one tries to use it
-            serialDevice = null;
+            deviceInterface = null;
             // Tell the activity we are disconnected
             connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
         }
     }
 
     // Called once the library connects a bluetooth device
-    private void onConnected(BluetoothSerialDevice device) {
-        this.serialDevice = device;
-        if (serialDevice != null) {
+    private void onConnected(SimpleDeviceInterface deviceInterface) {
+        this.deviceInterface = deviceInterface;
+        if (this.deviceInterface != null) {
             // We have a device! Tell the activity we are connected.
             connectionStatusData.postValue(ConnectionStatus.CONNECTED);
-            // Start listening for messages from the device
-            compositeDisposable.add(
-                    serialDevice.openMessageStream()
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(this::onMessageReceived, Throwable::printStackTrace));
+            // Setup the listeners for the interface
+            this.deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, t -> toast(R.string.message_send_error));
             // Tell the user we are connected.
             toast(R.string.connected);
             // Reset the conversation
             messages = new StringBuilder();
             messagesData.postValue(messages.toString());
         } else {
-            // serialDevice was null, so the connection failed
+            // deviceInterface was null, so the connection failed
             toast(R.string.connection_failed);
             connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
         }
@@ -151,32 +146,25 @@ public class CommunicateViewModel extends AndroidViewModel {
 
     // Adds a sent message to the conversation
     private void onMessageSent(String message) {
+        // Add it to the conversation
         messages.append(getApplication().getString(R.string.you_sent)).append(": ").append(message).append('\n');
         messagesData.postValue(messages.toString());
+        // Reset the message box
+        messageData.postValue("");
     }
 
-    // Method
+    // Send a message
     public void sendMessage(String message) {
-        // Check we have a connected device and the message is not empty
-        if (serialDevice != null && !TextUtils.isEmpty(message)) {
-            // Send the message asynchronously
-            compositeDisposable.add(
-                    serialDevice.send(message)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(() -> {
-                                // Add it to the conversation
-                                onMessageSent(message);
-                                // Reset the message
-                                messageData.postValue("");
-                            }, t -> toast(R.string.message_send_error)));
+        // Check we have a connected device and the message is not empty, then send the message
+        if (deviceInterface != null && !TextUtils.isEmpty(message)) {
+            deviceInterface.sendMessage(message);
         }
     }
 
     // Called when the activity finishes - clear up after ourselves.
     @Override
     protected void onCleared() {
-        // Dispose any other threads that are running
+        // Dispose any asynchronous operations that are running
         compositeDisposable.dispose();
         // Shutdown bluetooth connections
         bluetoothManager.close();
