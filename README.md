@@ -16,7 +16,7 @@ allprojects {
 - **App level `build.gradle`**
 ```gradle
 dependencies {
-    implementation 'com.github.harry1453:android-bluetooth-serial:v1.0'
+    implementation 'com.github.harry1453:android-bluetooth-serial:v1.1'
     
     // RxJava is also required.
     implementation 'io.reactivex.rxjava2:rxjava:2.1.12'
@@ -65,37 +65,30 @@ import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 ```
 
 ```JAVA
-private BluetoothSerialDevice device;
+private SimpleBluetoothDeviceInterface deviceInterface;
 
 private void connectDevice(String mac) {
     bluetoothManager.openSerialDevice(mac)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::onConnected, this::onConnectError);
-}
-
-private void sendMessage(String message) {
-    if (device != null) { // Check we are connected
-        serialDevice.send(message)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onSentMessage, this::onSendMessageError);
-    }
+            .subscribe(this::onConnected, this::onError);
 }
 
 private void onConnected(BluetoothSerialDevice connectedDevice) {
     // You are now connected to this device!
     // Here you may want to retain an instance to your device:
-    this.device = connectedDevice;
+    deviceInterface = connectedDevice.toSimpleDeviceInterface();
     
-    // Open a message stream:
-    serialDevice.openMessageStream()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::onMessageReceived, this::onReceiveMessageError));
+    // Listen to bluetooth events
+    deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError);
     
-    // Let's send a message using our send function:
-    sendMessage("Hello world!");
+    // Let's send a message:
+    deviceInterface.sendMessage("Hello world!");
+}
+
+private void onMessageSent(String message) {
+    // We sent a message! Handle it here.
+    Toast.makeText(context, "Sent a message! Message was: " + message, Toast.LENGTH_LONG).show(); // Replace context with your context instance.
 }
 
 private void onMessageReceived(String message) {
@@ -103,16 +96,8 @@ private void onMessageReceived(String message) {
     Toast.makeText(context, "Received a message! Message was: " + message, Toast.LENGTH_LONG).show(); // Replace context with your context instance.
 }
 
-private void onConnectError(Throwable error) {
-    // Handle the connection error
-}
-
-private void onReceiveMessageError(Throwable error) {
-    // Handle the receiving error
-}
-
-private void onSendMessageError(Throwable error) {
-    // Handle the sending error
+private void onError(Throwable error) {
+    // Handle the error
 }
 ```
 
@@ -124,6 +109,8 @@ private void onSendMessageError(Throwable error) {
 bluetoothManager.closeDevice(macAddress); // Close by mac
 // OR
 bluetoothManager.closeDevice(connectedDevice); // Close by device instance
+// OR
+bluetoothManager.closeDevice(deviceInterface); // Close by interface instance
 
 // Disconnect all devices
 bluetoothManager.close();
