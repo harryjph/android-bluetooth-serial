@@ -108,7 +108,7 @@ public class BluetoothManager implements Closeable {
      * @param deviceInterface The interface accessing the device
      *                        you are trying to close the connection to
      */
-    public void closeDevice(SimpleDeviceInterface deviceInterface) {
+    public void closeDevice(SimpleBluetoothDeviceInterface deviceInterface) {
         closeDevice(deviceInterface.getDevice().getMac());
     }
 

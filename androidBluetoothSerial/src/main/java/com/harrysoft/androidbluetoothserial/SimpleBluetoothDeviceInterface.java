@@ -6,7 +6,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class SimpleDeviceInterface {
+public class SimpleBluetoothDeviceInterface {
 
     private final BluetoothSerialDevice device;
 
@@ -19,7 +19,7 @@ public class SimpleDeviceInterface {
     @Nullable
     private OnErrorListener errorListener;
 
-    SimpleDeviceInterface(BluetoothSerialDevice device) {
+    SimpleBluetoothDeviceInterface(BluetoothSerialDevice device) {
         this.device = device;
 
         compositeDisposable.add(device.openMessageStream()

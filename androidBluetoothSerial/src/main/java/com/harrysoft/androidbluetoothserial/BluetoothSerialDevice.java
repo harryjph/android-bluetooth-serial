@@ -24,7 +24,7 @@ public class BluetoothSerialDevice {
     private final InputStream inputStream;
 
     @Nullable
-    private SimpleDeviceInterface owner;
+    private SimpleBluetoothDeviceInterface owner;
 
     private BluetoothSerialDevice(String mac, BluetoothSocket socket, OutputStream outputStream, InputStream inputStream) {
         this.mac = mac;
@@ -93,17 +93,17 @@ public class BluetoothSerialDevice {
     }
 
     /**
-     * Wrap using a SimpleDeviceInterface.
+     * Wrap using a SimpleBluetoothDeviceInterface.
      * This makes things a lot simpler within the class accessing this device
      *
-     * @return a SimpleDeviceInterface that will access this device object
+     * @return a SimpleBluetoothDeviceInterface that will access this device object
      */
-    public SimpleDeviceInterface toSimpleDeviceInterface() {
+    public SimpleBluetoothDeviceInterface toSimpleDeviceInterface() {
         requireNotClosed();
         if (owner != null) {
             return owner;
         } else {
-            return owner = new SimpleDeviceInterface(this);
+            return owner = new SimpleBluetoothDeviceInterface(this);
         }
     }
 

@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
-import com.harrysoft.androidbluetoothserial.SimpleDeviceInterface;
+import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -27,7 +27,7 @@ public class CommunicateViewModel extends AndroidViewModel {
 
     // Our Bluetooth Device! When disconnected it is null, so make sure we know that we need to deal with it potentially being null
     @Nullable
-    private SimpleDeviceInterface deviceInterface;
+    private SimpleBluetoothDeviceInterface deviceInterface;
 
     // The messages feed that the activity sees
     private MutableLiveData<String> messagesData = new MutableLiveData<>();
@@ -119,7 +119,7 @@ public class CommunicateViewModel extends AndroidViewModel {
     }
 
     // Called once the library connects a bluetooth device
-    private void onConnected(SimpleDeviceInterface deviceInterface) {
+    private void onConnected(SimpleBluetoothDeviceInterface deviceInterface) {
         this.deviceInterface = deviceInterface;
         if (this.deviceInterface != null) {
             // We have a device! Tell the activity we are connected.
