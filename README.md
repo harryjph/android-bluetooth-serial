@@ -1,4 +1,7 @@
 # android-bluetooth-serial
+
+[![Build Status](https://travis-ci.com/harry1453/android-bluetooth-serial.svg?branch=master)](https://travis-ci.com/harry1453/android-bluetooth-serial)
+
 A library for Android to simplify basic serial communication over Bluetooth, for example when communicating with Arduinos.
 
 ## How to include the library
