@@ -6,7 +6,11 @@ import android.bluetooth.BluetoothSocket;
 import android.util.ArrayMap;
 
 import java.io.Closeable;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -118,10 +122,12 @@ public class BluetoothManager implements Closeable {
      */
     @Override
     public void close() {
-        for (Map.Entry<String, BluetoothSerialDevice> d : devices.entrySet()) {
+        for (Iterator<Map.Entry<String, BluetoothSerialDevice>> iterator = devices.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry<String, BluetoothSerialDevice> deviceEntry = iterator.next();
             try {
-                d.getValue().close();
-            } catch (Exception ignored) {}
+                deviceEntry.getValue().close();
+            } catch (Throwable ignored) {}
+            iterator.remove();
         }
     }
 }
