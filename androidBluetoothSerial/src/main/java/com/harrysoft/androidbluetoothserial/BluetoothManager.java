@@ -61,7 +61,7 @@ public class BluetoothManager implements Closeable {
     /**
      * @param mac The MAC address of the device
      *             you are trying to connect to
-     * @param charset The Charset to use to decode incoming stream
+     * @param charset The Charset to use for input/output streams
      * @return An RxJava Single, that will either emit
      *          a BluetoothSerialDevice or a BluetoothConnectException
      */

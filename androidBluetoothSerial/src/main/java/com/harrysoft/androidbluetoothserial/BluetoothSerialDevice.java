@@ -47,7 +47,7 @@ public class BluetoothSerialDevice {
      */
     public Completable send(String message) {
         requireNotClosed();
-        return Completable.fromAction(() -> { if (!closed) outputStream.write(message.getBytes()); });
+        return Completable.fromAction(() -> { if (!closed) outputStream.write(message.getBytes(charset)); });
     }
 
     /**
