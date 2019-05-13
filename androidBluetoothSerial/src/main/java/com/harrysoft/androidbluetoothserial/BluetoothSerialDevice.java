@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
@@ -22,19 +23,21 @@ public class BluetoothSerialDevice {
     private final BluetoothSocket socket;
     private final OutputStream outputStream;
     private final InputStream inputStream;
+    private final Charset charset;
 
     @Nullable
     private SimpleBluetoothDeviceInterface owner;
 
-    private BluetoothSerialDevice(String mac, BluetoothSocket socket, OutputStream outputStream, InputStream inputStream) {
+    private BluetoothSerialDevice(String mac, BluetoothSocket socket, OutputStream outputStream, InputStream inputStream, Charset charset) {
         this.mac = mac;
         this.socket = socket;
         this.outputStream = outputStream;
         this.inputStream = inputStream;
+        this.charset = charset;
     }
 
-    static BluetoothSerialDevice getInstance(String mac, BluetoothSocket socket) throws IOException {
-        return new BluetoothSerialDevice(mac, socket, socket.getOutputStream(), socket.getInputStream());
+    static BluetoothSerialDevice getInstance(String mac, BluetoothSocket socket, Charset charset) throws IOException {
+        return new BluetoothSerialDevice(mac, socket, socket.getOutputStream(), socket.getInputStream(), charset);
     }
 
     /**
@@ -54,7 +57,7 @@ public class BluetoothSerialDevice {
     public Flowable<String> openMessageStream() {
         requireNotClosed();
         return Flowable.create(emitter -> {
-            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, charset));
             while (!emitter.isCancelled() && !closed) {
                 synchronized (this) {
                     try {

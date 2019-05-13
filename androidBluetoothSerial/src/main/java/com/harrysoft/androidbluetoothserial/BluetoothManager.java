@@ -9,6 +9,7 @@ import java.io.Closeable;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +55,17 @@ public class BluetoothManager implements Closeable {
      *          a BluetoothSerialDevice or a BluetoothConnectException
      */
     public Single<BluetoothSerialDevice> openSerialDevice(String mac) {
+        return openSerialDevice(mac, Charset.defaultCharset());
+    }
+
+    /**
+     * @param mac The MAC address of the device
+     *             you are trying to connect to
+     * @param charset The Charset to use to decode incoming stream
+     * @return An RxJava Single, that will either emit
+     *          a BluetoothSerialDevice or a BluetoothConnectException
+     */
+    public Single<BluetoothSerialDevice> openSerialDevice(String mac, Charset charset) {
         if (devices.containsKey(mac)) {
             return Single.just(devices.get(mac));
         } else {
@@ -63,7 +75,7 @@ public class BluetoothManager implements Closeable {
                     BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
                     adapter.cancelDiscovery();
                     socket.connect();
-                    BluetoothSerialDevice serialDevice = BluetoothSerialDevice.getInstance(mac, socket);
+                    BluetoothSerialDevice serialDevice = BluetoothSerialDevice.getInstance(mac, socket, charset);
                     devices.put(mac, serialDevice);
                     return serialDevice;
                 } catch (Exception e) {
