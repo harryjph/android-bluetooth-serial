@@ -9,7 +9,6 @@ import java.io.Closeable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,7 +19,7 @@ public class BluetoothManager implements Closeable {
 
     private final BluetoothAdapter adapter;
 
-    private final ArrayMap<String, BluetoothSerialDevice> devices = new ArrayMap<>();
+    private final Map<String, BluetoothSerialDevice> devices = new ArrayMap<>();
 
     private BluetoothManager(BluetoothAdapter adapter) {
         this.adapter = adapter;
@@ -131,12 +130,11 @@ public class BluetoothManager implements Closeable {
      */
     @Override
     public void close() {
-        for (Iterator<Map.Entry<String, BluetoothSerialDevice>> iterator = devices.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry<String, BluetoothSerialDevice> deviceEntry = iterator.next();
+        for (Map.Entry<String, BluetoothSerialDevice> deviceEntry :  devices.entrySet()) {
             try {
                 deviceEntry.getValue().close();
             } catch (Throwable ignored) {}
-            iterator.remove();
         }
+        devices.clear();
     }
 }
