@@ -139,4 +139,14 @@ public class BluetoothSerialDevice {
     public String getMac() {
         return mac;
     }
+
+    /**
+     * @return The underlying InputStream representing the device's input.
+     *          This can be used to manually manage the device's input,
+     *          and is most useful in cases where the device does not send
+     *          a newline character at the end of each message.
+     */
+    public InputStream getInputStream() {
+        return inputStream;
+    }
 }
