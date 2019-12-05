@@ -1,7 +1,6 @@
 package com.harrysoft.androidbluetoothserial;
 
 import android.bluetooth.BluetoothSocket;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.io.BufferedReader;
@@ -10,14 +9,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.annotations.Nullable;
 
 public class BluetoothSerialDevice {
-
-    private boolean closed = false;
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final String mac;
     private final BluetoothSocket socket;
@@ -47,26 +47,35 @@ public class BluetoothSerialDevice {
      */
     public Completable send(String message) {
         requireNotClosed();
-        return Completable.fromAction(() -> { if (!closed) outputStream.write(message.getBytes(charset)); });
+        return Completable.fromAction(() -> {
+            synchronized (outputStream) {
+                if (!closed.get()) outputStream.write(message.getBytes(charset));
+            }
+        });
     }
 
     /**
      * @return An RxJava Flowable that, when observed, will
      *          provide a stream of messages from the device.
+     *          A message is considered to be terminated by a
+     *          newline ('\n') character. If a newline is not
+     *          received, the message will continue buffering
+     *          forever. If this is not the desired behaviour,
+     *          please manually manage the input using getInputStream()
      */
     public Flowable<String> openMessageStream() {
         requireNotClosed();
         return Flowable.create(emitter -> {
             BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, charset));
-            while (!emitter.isCancelled() && !closed) {
-                synchronized (this) {
+            while (!emitter.isCancelled() && !closed.get()) {
+                synchronized (inputStream) {
                     try {
                         String receivedString = in.readLine();
                         if (!TextUtils.isEmpty(receivedString)) {
                             emitter.onNext(receivedString);
                         }
                     } catch (Exception e) {
-                        if (!emitter.isCancelled() && !closed) {
+                        if (!emitter.isCancelled() && !closed.get()) {
                             emitter.onError(e);
                         } else {
                             break;
@@ -83,10 +92,14 @@ public class BluetoothSerialDevice {
      *          throws an exception whilst closing
      */
     void close() throws IOException {
-        if (!closed) {
-            closed = true;
-            inputStream.close();
-            outputStream.close();
+        if (!closed.get()) {
+            closed.set(true);
+            synchronized (inputStream) {
+                inputStream.close();
+            }
+            synchronized (outputStream) {
+                outputStream.close();
+            }
             socket.close();
         }
         if (owner != null) {
@@ -115,7 +128,7 @@ public class BluetoothSerialDevice {
      * this instance has not been closed
      */
     void requireNotClosed() {
-        if (closed) {
+        if (closed.get()) {
             throw new IllegalArgumentException("Device connection closed");
         }
     }

@@ -1,20 +1,22 @@
 package com.harrysoft.androidbluetoothserial.demoapp;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,14 +118,14 @@ public class MainActivity extends AppCompatActivity {
 
         private List<BluetoothDevice> deviceList = new ArrayList<>();
 
-        @NonNull
+        @NotNull
         @Override
-        public DeviceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public DeviceViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
             return new DeviceViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(@NonNull DeviceViewHolder holder, int position) {
+        public void onBindViewHolder(@NotNull DeviceViewHolder holder, int position) {
             holder.setupView(deviceList.get(position));
         }
 

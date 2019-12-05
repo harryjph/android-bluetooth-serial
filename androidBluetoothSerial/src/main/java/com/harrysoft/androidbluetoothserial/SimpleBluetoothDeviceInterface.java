@@ -1,6 +1,6 @@
 package com.harrysoft.androidbluetoothserial;
 
-import android.support.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;

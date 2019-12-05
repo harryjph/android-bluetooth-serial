@@ -1,18 +1,18 @@
 package com.harrysoft.androidbluetoothserial.demoapp;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
+
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
-import java.util.Set;
 
 public class MainActivityViewModel extends AndroidViewModel {
 
@@ -26,7 +26,7 @@ public class MainActivityViewModel extends AndroidViewModel {
     private boolean viewModelSetup = false;
 
     // Called by the system, this is just a constructor that matches AndroidViewModel.
-    public MainActivityViewModel(@NonNull Application application) {
+    public MainActivityViewModel(@NotNull Application application) {
         super(application);
     }
 

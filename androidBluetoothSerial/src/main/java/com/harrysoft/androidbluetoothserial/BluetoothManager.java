@@ -6,10 +6,8 @@ import android.bluetooth.BluetoothSocket;
 import android.util.ArrayMap;
 
 import java.io.Closeable;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +16,6 @@ import java.util.UUID;
 
 import io.reactivex.Single;
 
-@SuppressWarnings("WeakerAccess")
 public class BluetoothManager implements Closeable {
 
     private final BluetoothAdapter adapter;
@@ -55,7 +52,7 @@ public class BluetoothManager implements Closeable {
      *          a BluetoothSerialDevice or a BluetoothConnectException
      */
     public Single<BluetoothSerialDevice> openSerialDevice(String mac) {
-        return openSerialDevice(mac, Charset.defaultCharset());
+        return openSerialDevice(mac, StandardCharsets.UTF_8);
     }
 
     /**
