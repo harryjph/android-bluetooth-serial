@@ -3,6 +3,8 @@ package com.harrysoft.androidbluetoothserial;
 import android.bluetooth.BluetoothSocket;
 import android.text.TextUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +45,7 @@ class BluetoothSerialDeviceImpl implements BluetoothSerialDevice {
     }
 
     @Override
+    @NotNull
     public Completable send(String message) {
         checkNotClosed();
         return Completable.fromAction(() -> {
@@ -53,6 +56,7 @@ class BluetoothSerialDeviceImpl implements BluetoothSerialDevice {
     }
 
     @Override
+    @NotNull
     public Flowable<String> openMessageStream() {
         checkNotClosed();
         return Flowable.create(emitter -> {
@@ -100,6 +104,7 @@ class BluetoothSerialDeviceImpl implements BluetoothSerialDevice {
     }
 
     @Override
+    @NotNull
     public SimpleBluetoothDeviceInterfaceImpl toSimpleDeviceInterface() {
         checkNotClosed();
         if (owner != null) {
@@ -120,11 +125,13 @@ class BluetoothSerialDeviceImpl implements BluetoothSerialDevice {
     }
 
     @Override
+    @NotNull
     public String getMac() {
         return mac;
     }
 
     @Override
+    @NotNull
     public InputStream getInputStream() {
         return inputStream;
     }

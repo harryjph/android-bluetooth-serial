@@ -1,5 +1,7 @@
 package com.harrysoft.androidbluetoothserial;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.InputStream;
 
 import io.reactivex.Completable;
@@ -22,6 +24,7 @@ public interface BluetoothSerialDevice {
      *          forever. If this is not the desired behaviour,
      *          please manually manage the input using getInputStream()
      */
+    @NotNull
     Flowable<String> openMessageStream();
 
     /**
@@ -30,11 +33,13 @@ public interface BluetoothSerialDevice {
      *
      * @return a SimpleBluetoothDeviceInterface that will access this device object
      */
+    @NotNull
     SimpleBluetoothDeviceInterfaceImpl toSimpleDeviceInterface();
 
     /**
      * @return The MAC address of the closed bluetooth device
      */
+    @NotNull
     String getMac();
 
     /**
@@ -43,5 +48,6 @@ public interface BluetoothSerialDevice {
      *          and is most useful in cases where the device does not send
      *          a newline character at the end of each message.
      */
+    @NotNull
     InputStream getInputStream();
 }

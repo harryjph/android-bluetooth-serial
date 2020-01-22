@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.ArrayMap;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -31,17 +33,20 @@ class BluetoothManagerImpl implements BluetoothManager {
     }
 
     @Override
+    @NotNull
     public List<BluetoothDevice> getPairedDevicesList() {
         return new ArrayList<>(adapter.getBondedDevices());
     }
 
     @Override
-    public Single<BluetoothSerialDevice> openSerialDevice(String mac) {
+    @NotNull
+    public Single<BluetoothSerialDevice> openSerialDevice(@NotNull String mac) {
         return openSerialDevice(mac, StandardCharsets.UTF_8);
     }
 
     @Override
-    public Single<BluetoothSerialDevice> openSerialDevice(String mac, Charset charset) {
+    @NotNull
+    public Single<BluetoothSerialDevice> openSerialDevice(@NotNull String mac, @NotNull Charset charset) {
         if (devices.containsKey(mac)) {
             return Single.just(devices.get(mac));
         } else {
@@ -62,7 +67,7 @@ class BluetoothManagerImpl implements BluetoothManager {
     }
 
     @Override
-    public void closeDevice(String mac) {
+    public void closeDevice(@NotNull String mac) {
         BluetoothSerialDeviceImpl removedDevice = devices.remove(mac);
         if (removedDevice != null) {
             try {
@@ -74,12 +79,12 @@ class BluetoothManagerImpl implements BluetoothManager {
     }
 
     @Override
-    public void closeDevice(BluetoothSerialDevice device) {
+    public void closeDevice(@NotNull BluetoothSerialDevice device) {
         closeDevice(device.getMac());
     }
 
     @Override
-    public void closeDevice(SimpleBluetoothDeviceInterface deviceInterface) {
+    public void closeDevice(@NotNull SimpleBluetoothDeviceInterface deviceInterface) {
         closeDevice(deviceInterface.getDevice().getMac());
     }
 

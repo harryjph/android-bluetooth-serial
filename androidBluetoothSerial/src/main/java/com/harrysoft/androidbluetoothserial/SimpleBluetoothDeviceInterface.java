@@ -1,5 +1,6 @@
 package com.harrysoft.androidbluetoothserial;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface SimpleBluetoothDeviceInterface {
@@ -40,17 +41,18 @@ public interface SimpleBluetoothDeviceInterface {
     /**
      * @return The BluetoothSerialDevice instance that the interface is wrapping.
      */
+    @NotNull
     BluetoothSerialDevice getDevice();
 
     interface OnMessageReceivedListener {
-        void onMessageReceived(String message);
+        void onMessageReceived(@NotNull String message);
     }
 
     interface OnMessageSentListener {
-        void onMessageSent(String message);
+        void onMessageSent(@NotNull String message);
     }
 
     interface OnErrorListener {
-        void onError(Throwable error);
+        void onError(@NotNull Throwable error);
     }
 }
