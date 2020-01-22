@@ -21,7 +21,7 @@ class BluetoothManagerImpl implements BluetoothManager {
 
     private final BluetoothAdapter adapter;
 
-    private final Map<String, BluetoothSerialDevice> devices = new ArrayMap<>();
+    private final Map<String, BluetoothSerialDeviceImpl> devices = new ArrayMap<>();
 
     /**
      * Package private constructor
@@ -51,7 +51,7 @@ class BluetoothManagerImpl implements BluetoothManager {
                     BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
                     adapter.cancelDiscovery();
                     socket.connect();
-                    BluetoothSerialDevice serialDevice = BluetoothSerialDevice.getInstance(mac, socket, charset);
+                    BluetoothSerialDeviceImpl serialDevice = new BluetoothSerialDeviceImpl(mac, socket, charset);
                     devices.put(mac, serialDevice);
                     return serialDevice;
                 } catch (Exception e) {
@@ -63,7 +63,7 @@ class BluetoothManagerImpl implements BluetoothManager {
 
     @Override
     public void closeDevice(String mac) {
-        BluetoothSerialDevice removedDevice = devices.remove(mac);
+        BluetoothSerialDeviceImpl removedDevice = devices.remove(mac);
         if (removedDevice != null) {
             try {
                 removedDevice.close();
@@ -85,7 +85,7 @@ class BluetoothManagerImpl implements BluetoothManager {
 
     @Override
     public void close() {
-        for (Map.Entry<String, BluetoothSerialDevice> deviceEntry :  devices.entrySet()) {
+        for (Map.Entry<String, BluetoothSerialDeviceImpl> deviceEntry :  devices.entrySet()) {
             try {
                 deviceEntry.getValue().close();
             } catch (Throwable ignored) {}
