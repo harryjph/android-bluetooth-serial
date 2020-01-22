@@ -18,7 +18,7 @@ internal class SimpleBluetoothDeviceInterfaceImpl(override val device: Bluetooth
         compositeDisposable.add(device.openMessageStream()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.onReceivedMessage(it) }, { this.onError(it) }))
+                .subscribe({ messageReceivedListener?.onMessageReceived(it) }, { errorListener?.onError(it) }))
     }
 
     override fun sendMessage(message: String) {
@@ -26,40 +26,7 @@ internal class SimpleBluetoothDeviceInterfaceImpl(override val device: Bluetooth
         compositeDisposable.add(device.send(message)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ onSentMessage(message) }, { this.onError(it) }))
-    }
-
-    /**
-     * Internal callback called when the BluetoothSerialDevice receives a message
-     *
-     * @param message The message received from the bluetooth device
-     */
-    private fun onReceivedMessage(message: String) {
-        if (messageReceivedListener != null) {
-            messageReceivedListener!!.onMessageReceived(message)
-        }
-    }
-
-    /**
-     * Internal callback called when the BluetoothSerialDevice sends a message
-     *
-     * @param message The message sent to the bluetooth device
-     */
-    private fun onSentMessage(message: String) {
-        if (messageSentListener != null) {
-            messageSentListener!!.onMessageSent(message)
-        }
-    }
-
-    /**
-     * Internal callback called when a Bluetooth send/receive error occurs
-     *
-     * @param error The error that occurred
-     */
-    private fun onError(error: Throwable) {
-        if (errorListener != null) {
-            errorListener!!.onError(error)
-        }
+                .subscribe({ messageSentListener?.onMessageSent(message) }, { errorListener?.onError(it) }))
     }
 
     override fun setListeners(messageReceivedListener: SimpleBluetoothDeviceInterface.OnMessageReceivedListener?,

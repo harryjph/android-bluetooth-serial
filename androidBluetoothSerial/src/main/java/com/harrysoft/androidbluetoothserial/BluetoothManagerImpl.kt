@@ -13,8 +13,8 @@ import java.util.*
 internal class BluetoothManagerImpl(private val adapter: BluetoothAdapter) : BluetoothManager {
     private val devices: MutableMap<String, BluetoothSerialDeviceImpl> = mutableMapOf()
 
-    override val pairedDevicesList: List<BluetoothDevice>
-        get() = adapter.bondedDevices.toList()
+    override val pairedDevices: Collection<BluetoothDevice>
+        get() = adapter.bondedDevices
 
     override fun openSerialDevice(mac: String): Single<BluetoothSerialDevice> {
         return openSerialDevice(mac, StandardCharsets.UTF_8)
@@ -27,7 +27,7 @@ internal class BluetoothManagerImpl(private val adapter: BluetoothAdapter) : Blu
             Single.fromCallable {
                 try {
                     val device = adapter.getRemoteDevice(mac)
-                    val socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                    val socket = device.createInsecureRfcommSocketToServiceRecord(SPP_UUID)
                     adapter.cancelDiscovery()
                     socket.connect()
                     val serialDevice = BluetoothSerialDeviceImpl(mac, socket, charset)
@@ -41,14 +41,7 @@ internal class BluetoothManagerImpl(private val adapter: BluetoothAdapter) : Blu
     }
 
     override fun closeDevice(mac: String) {
-        val removedDevice = devices.remove(mac)
-        if (removedDevice != null) {
-            try {
-                removedDevice.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        devices.remove(mac)?.close()
     }
 
     override fun closeDevice(device: BluetoothSerialDevice) {
@@ -67,5 +60,9 @@ internal class BluetoothManagerImpl(private val adapter: BluetoothAdapter) : Blu
             }
         }
         devices.clear()
+    }
+
+    companion object {
+        val SPP_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }
 }

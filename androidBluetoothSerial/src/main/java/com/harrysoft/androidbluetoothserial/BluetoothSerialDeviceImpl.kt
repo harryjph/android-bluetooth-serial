@@ -5,7 +5,10 @@ import android.text.TextUtils
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import java.io.*
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -35,11 +38,11 @@ internal class BluetoothSerialDeviceImpl constructor(
     override fun openMessageStream(): Flowable<String> {
         checkNotClosed()
         return Flowable.create({ emitter ->
-            val `in` = BufferedReader(InputStreamReader(inputStream, charset))
+            val reader = BufferedReader(InputStreamReader(inputStream, charset))
             while (!emitter.isCancelled && !closed.get()) {
                 synchronized(inputStream) {
                     try {
-                        val receivedString = `in`.readLine()
+                        val receivedString = reader.readLine()
                         if (!TextUtils.isEmpty(receivedString)) {
                             emitter.onNext(receivedString)
                         }
@@ -54,10 +57,6 @@ internal class BluetoothSerialDeviceImpl constructor(
         }, BackpressureStrategy.BUFFER)
     }
 
-    /**
-     * @throws IOException if one of the streams
-     * throws an exception whilst closing
-     */
     fun close() {
         if (!closed.get()) {
             closed.set(true)

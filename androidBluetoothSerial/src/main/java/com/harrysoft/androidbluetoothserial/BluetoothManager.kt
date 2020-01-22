@@ -6,12 +6,16 @@ import io.reactivex.Single
 import java.nio.charset.Charset
 
 interface BluetoothManager : AutoCloseable {
+    /**
+     * A collection of paired Bluetooth devices, not restricted to serial devices.
+     */
+    val pairedDevices: Collection<BluetoothDevice>
 
     /**
-     * @return A list of paired Bluetooth devices
-     * TODO deprecate, replace with val pairedDevices: Collection<BluetoothDevice>
+     * A collection of paired Bluetooth devices, not restricted to serial devices.
      */
-    val pairedDevicesList: List<BluetoothDevice>
+    @Deprecated("Use pairedDevices instead", replaceWith = ReplaceWith("pairedDevices"))
+    val pairedDevicesList: List<BluetoothDevice> get() = pairedDevices.toList()
 
     /**
      * @param mac The MAC address of the device
