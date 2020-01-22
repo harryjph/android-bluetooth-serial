@@ -12,7 +12,7 @@ import com.harrysoft.androidbluetoothserial.BluetoothManager;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.Collection;
 
 public class MainActivityViewModel extends AndroidViewModel {
 
@@ -20,7 +20,7 @@ public class MainActivityViewModel extends AndroidViewModel {
     private BluetoothManager bluetoothManager;
 
     // The paired devices list tha the activity sees
-    private MutableLiveData<List<BluetoothDevice>> pairedDeviceList = new MutableLiveData<>();
+    private MutableLiveData<Collection<BluetoothDevice>> pairedDeviceList = new MutableLiveData<>();
 
     // A variable to help us not setup twice
     private boolean viewModelSetup = false;
@@ -52,7 +52,7 @@ public class MainActivityViewModel extends AndroidViewModel {
 
     // Called by the activity to request that we refresh the list of paired devices
     public void refreshPairedDevices() {
-        pairedDeviceList.postValue(bluetoothManager.getPairedDevicesList());
+        pairedDeviceList.postValue(bluetoothManager.getPairedDevices());
     }
 
     // Called when the activity finishes - clear up after ourselves.
@@ -62,5 +62,5 @@ public class MainActivityViewModel extends AndroidViewModel {
     }
 
     // Getter method for the activity to use.
-    public LiveData<List<BluetoothDevice>> getPairedDeviceList() { return pairedDeviceList; }
+    public LiveData<Collection<BluetoothDevice>> getPairedDeviceList() { return pairedDeviceList; }
 }

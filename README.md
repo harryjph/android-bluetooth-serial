@@ -54,7 +54,7 @@ if (bluetoothManager == null) {
 2. Get the list of paired devices:
 
 ```JAVA
-List<BluetoothDevice> pairedDevices = bluetoothManager.getPairedDevicesList();
+Collection<BluetoothDevice> pairedDevices = bluetoothManager.getPairedDevices();
 for (BluetoothDevice device : pairedDevices) {
     Log.d("My Bluetooth App", "Device name: " + device.getName());
     Log.d("My Bluetooth App", "Device MAC Address: " + device.getAddress());

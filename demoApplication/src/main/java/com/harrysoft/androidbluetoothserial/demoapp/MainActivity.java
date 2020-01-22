@@ -18,8 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -115,8 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
     // A class to adapt our list of devices to the RecyclerView
     private class DeviceAdapter extends RecyclerView.Adapter<DeviceViewHolder> {
-
-        private List<BluetoothDevice> deviceList = new ArrayList<>();
+        private BluetoothDevice[] deviceList = new BluetoothDevice[0];
 
         @NotNull
         @Override
@@ -126,16 +124,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NotNull DeviceViewHolder holder, int position) {
-            holder.setupView(deviceList.get(position));
+            holder.setupView(deviceList[position]);
         }
 
         @Override
         public int getItemCount() {
-            return deviceList.size();
+            return deviceList.length;
         }
 
-        void updateList(List<BluetoothDevice> deviceList) {
-            this.deviceList = deviceList;
+        void updateList(Collection<BluetoothDevice> deviceList) {
+            this.deviceList = deviceList.toArray(new BluetoothDevice[0]);
             notifyDataSetChanged();
         }
     }
