@@ -29,7 +29,7 @@ class BluetoothSerialDeviceImpl implements BluetoothSerialDevice {
     private final Charset charset;
 
     @Nullable
-    private SimpleBluetoothDeviceInterface owner;
+    private SimpleBluetoothDeviceInterfaceImpl owner;
 
     /**
      * Package private constructor
@@ -100,17 +100,17 @@ class BluetoothSerialDeviceImpl implements BluetoothSerialDevice {
     }
 
     @Override
-    public SimpleBluetoothDeviceInterface toSimpleDeviceInterface() {
+    public SimpleBluetoothDeviceInterfaceImpl toSimpleDeviceInterface() {
         checkNotClosed();
         if (owner != null) {
             return owner;
         } else {
-            return owner = new SimpleBluetoothDeviceInterface(this);
+            return owner = new SimpleBluetoothDeviceInterfaceImpl(this);
         }
     }
 
     /**
-     * Internal function that checks that
+     * Package private function that checks that
      * this instance has not been closed
      */
     void checkNotClosed() {

@@ -5,7 +5,7 @@ import java.io.InputStream;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 
-interface BluetoothSerialDevice {
+public interface BluetoothSerialDevice {
     /**
      * @param message The message to send to the device
      * @return An RxJava Completable to asynchronously
@@ -30,7 +30,7 @@ interface BluetoothSerialDevice {
      *
      * @return a SimpleBluetoothDeviceInterface that will access this device object
      */
-    SimpleBluetoothDeviceInterface toSimpleDeviceInterface();
+    SimpleBluetoothDeviceInterfaceImpl toSimpleDeviceInterface();
 
     /**
      * @return The MAC address of the closed bluetooth device
