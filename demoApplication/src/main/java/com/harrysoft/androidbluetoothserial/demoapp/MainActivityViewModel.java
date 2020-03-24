@@ -58,7 +58,8 @@ public class MainActivityViewModel extends AndroidViewModel {
     // Called when the activity finishes - clear up after ourselves.
     @Override
     protected void onCleared() {
-        bluetoothManager.close();
+        if (bluetoothManager != null)
+          bluetoothManager.close();
     }
 
     // Getter method for the activity to use.
