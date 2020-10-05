@@ -60,12 +60,8 @@ internal class BluetoothSerialDeviceImpl constructor(
     fun close() {
         if (!closed.get()) {
             closed.set(true)
-            synchronized(inputStream) {
-                inputStream.close()
-            }
-            synchronized(outputStream) {
-                outputStream.close()
-            }
+            inputStream.close()
+            soutputStream.close()
             socket.close()
         }
         owner?.close()
