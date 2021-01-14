@@ -61,7 +61,7 @@ internal class BluetoothSerialDeviceImpl constructor(
         if (!closed.get()) {
             closed.set(true)
             inputStream.close()
-            soutputStream.close()
+            outputStream.close()
             socket.close()
         }
         owner?.close()
