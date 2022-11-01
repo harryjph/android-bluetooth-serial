@@ -3,6 +3,8 @@ package com.harrysoft.androidbluetoothserial
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * Implementation of SimpleBluetoothDeviceInterface, package-private
@@ -47,6 +49,14 @@ internal class SimpleBluetoothDeviceInterfaceImpl(override val device: Bluetooth
 
     override fun setErrorListener(listener: SimpleBluetoothDeviceInterface.OnErrorListener?) {
         errorListener = listener
+    }
+
+    override fun getOutputStream(): OutputStream {
+        return device.outputStream
+    }
+
+    override fun getInputStream(): InputStream {
+        return device.inputStream
     }
 
     fun close() {

@@ -1,5 +1,8 @@
 package com.harrysoft.androidbluetoothserial
 
+import java.io.InputStream
+import java.io.OutputStream
+
 interface SimpleBluetoothDeviceInterface {
     /**
      * @return The BluetoothSerialDevice instance that the interface is wrapping.
@@ -51,4 +54,7 @@ interface SimpleBluetoothDeviceInterface {
     interface OnErrorListener {
         fun onError(error: Throwable)
     }
+
+    fun getOutputStream(): OutputStream
+    fun getInputStream(): InputStream
 }
